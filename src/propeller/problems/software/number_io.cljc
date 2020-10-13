@@ -61,10 +61,9 @@
 
 (defn error-function
   ([argmap individual]
-   (error-function argmap individual :train))
-  ([argmap individual subset]
+   (error-function argmap individual (:train train-and-test-data)))
+  ([argmap individual data]
    (let [program (genome/plushy->push (:plushy individual))
-         data (get train-and-test-data subset)
          inputs (:inputs data)
          correct-outputs (:outputs data)
          outputs (map (fn [input]
