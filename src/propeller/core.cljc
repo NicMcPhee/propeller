@@ -1,6 +1,7 @@
 (ns propeller.core
   #?(:clj (:gen-class))
   (:require [propeller.gp :as gp]
+            [propeller.quick-check :as quick-check]
             [propeller.problems.simple-regression :as regression]
             [propeller.problems.string-classification :as string-classif]
             [propeller.problems.software.number-io :as number-io]

@@ -2,6 +2,7 @@
   (:require [clojure.string]
             [propeller.genome :as genome]
             [propeller.variation :as variation]
+            [propeller.quick-check :as quick-check]
             [propeller.push.instructions.bool]
             [propeller.push.instructions.character]
             [propeller.push.instructions.code]
@@ -29,10 +30,23 @@
              (float (/ (reduce + (map count (map :plushy pop))) (count pop))))
     (println)))
 
+(defn end-run
+  "Run on Success"
+  [generation best-individual
+   {:keys [error-function] :as argmap}]
+  ;; Failed to generate new training case; verify on testing cases
+  (do (println "SUCCESS at generation" generation)
+      (print "Checking program on test cases... ")
+      (if (zero? (:total-error (error-function argmap best-individual :test)))
+        (println "Test cases passed.")
+        (println "Test cases failed."))
+      (#?(:clj shutdown-agents))))
+
 (defn gp
   "Main GP loop."
   [{:keys [population-size max-generations error-function instructions
-           max-initial-plushy-size]
+           max-initial-plushy-size
+           use-quick-check]
     :as   argmap}]
   ;;
   (println "Starting GP with args: " argmap)
@@ -42,22 +56,29 @@
                       population-size
                       #(hash-map :plushy (genome/make-random-plushy
                                            instructions
-                                           max-initial-plushy-size)))]
+                                          max-initial-plushy-size)))
+         ;; We probably want this to be a function of argmap so that
+         ;; it can build the initial test cases in a dynamic way based
+         ;; on the problem info in the argmap.
+         qc-args quick-check/gp-loop-args]
     (let [evaluated-pop (sort-by :total-error
                                  (#?(:clj  pmap
                                      :cljs map)
-                                   (partial error-function argmap) population))
+                                  (if use-quick-check
+                                    #(error-function argmap % (:training-cases qc-args))
+                                    (partial error-function argmap))
+                                  population))
           best-individual (first evaluated-pop)]
       (report evaluated-pop generation)
       (cond
-        ;; Success on training cases is verified on testing cases
-        (zero? (:total-error best-individual))
-        (do (println "SUCCESS at generation" generation)
-            (print "Checking program on test cases... ")
-            (if (zero? (:total-error (error-function argmap best-individual :test)))
-              (println "Test cases passed.")
-              (println "Test cases failed."))
-            (#?(:clj shutdown-agents)))
+        (quick-check/add-new-training-case? best-individual)
+        (let [new-training-case (quick-check/make-new-training-case)]
+          (if (nil? new-training-case)
+            (end-run generation best-individual argmap)
+            ;; add new test case and recur
+            ;; ...
+            (println "This should never happen")
+            ))
         ;;
         (>= generation max-generations)
         nil
@@ -68,4 +89,5 @@
                                          #(variation/new-individual evaluated-pop argmap))
                              (first evaluated-pop))
                        (repeatedly population-size
-                                   #(variation/new-individual evaluated-pop argmap))))))))
+                                   #(variation/new-individual evaluated-pop argmap)))
+                     qc-args)))))
