@@ -13,9 +13,7 @@
   (gp/gp
     (update-in
       (merge
-        {:instructions            number-io/instructions
-         :error-function          number-io/error-function
-         :max-generations         500
+        {:max-generations         500
          :population-size         500
          :max-initial-plushy-size 100
          :step-limit              200
@@ -24,6 +22,8 @@
          :umad-rate               0.1
          :variation               {:umad 0.5 :crossover 0.5}
          :elitism                 false}
+        quick-check/arg-defaults
+        number-io/argmap
         (apply hash-map
                (map read-string args)))
       [:error-function]

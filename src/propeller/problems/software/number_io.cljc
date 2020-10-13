@@ -91,3 +91,7 @@
        :errors errors
        :total-error #?(:clj (apply +' errors)
                        :cljs (apply + errors))))))
+
+(def argmap {:instructions            instructions
+             :error-function          error-function
+             :train-and-test-data     train-and-test-data})
