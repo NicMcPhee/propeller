@@ -4,7 +4,6 @@
             [propeller.push.state :as state]
             [propeller.push.utils.helpers :refer [get-stack-instructions]]
             [propeller.utils :as utils]
-            [propeller.push.state :as state]
             [propeller.tools.math :as math]
             #?(:cljs [cljs.reader :refer [read-string]])))
 
