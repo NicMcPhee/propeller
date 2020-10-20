@@ -4,11 +4,14 @@
 
 (def arg-defaults 
   {
-   :use-quick-check false
+   :use-quick-check            false
+   :num-initial-training-cases 5
   })
 
-(def gp-loop-args
-  {})
+(defn make-gp-loop-args [argmap]
+  (let [num-initial (:num-initial-training-cases argmap)]
+    {:training-cases {:inputs  (take num-initial (get-in argmap [:train-and-test-data :train :input]))
+                      :outputs (take num-initial (get-in argmap [:train-and-test-data :train :output]))}}))
 
 (defn add-new-training-case?
   [best-individual]

@@ -60,7 +60,7 @@
          ;; We probably want this to be a function of argmap so that
          ;; it can build the initial test cases in a dynamic way based
          ;; on the problem info in the argmap.
-         qc-args quick-check/gp-loop-args]
+         qc-args (quick-check/make-gp-loop-args argmap)]
     (let [evaluated-pop (sort-by :total-error
                                  (#?(:clj  pmap
                                      :cljs map)
