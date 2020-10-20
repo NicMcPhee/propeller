@@ -71,7 +71,7 @@
           best-individual (first evaluated-pop)]
       (report evaluated-pop generation)
       (cond
-        (quick-check/add-new-training-case? best-individual)
+        (quick-check/add-new-training-case? argmap qc-args best-individual)
         (let [new-training-case (quick-check/make-new-training-case)]
           (if (nil? new-training-case)
             (end-run generation best-individual argmap)
@@ -90,4 +90,4 @@
                              (first evaluated-pop))
                        (repeatedly population-size
                                    #(variation/new-individual evaluated-pop argmap)))
-                     qc-args)))))
+                     (update qc-args :gens-since-training-add inc))))))
