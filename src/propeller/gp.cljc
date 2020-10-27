@@ -53,10 +53,10 @@
   ;;
   (loop [generation 0
          population (repeatedly
-                      population-size
-                      #(hash-map :plushy (genome/make-random-plushy
-                                           instructions
-                                          max-initial-plushy-size)))
+                     population-size
+                     #(hash-map :plushy (genome/make-random-plushy
+                                         instructions
+                                         max-initial-plushy-size)))
          ;; We probably want this to be a function of argmap so that
          ;; it can build the initial test cases in a dynamic way based
          ;; on the problem info in the argmap.
@@ -83,11 +83,24 @@
             (end-run generation best-individual argmap)
             ;; add new test case and recur
             ;; ...
-            (println "This should never happen")
-            ))
-        ;;
-        (>= generation max-generations)
-        nil
+            (recur (inc generation)
+                   (if (:elitism argmap)
+                     (conj (repeatedly (dec population-size)
+                                       #(variation/new-individual evaluated-pop argmap))
+                           (first evaluated-pop))
+                     (repeatedly population-size
+                                 #(variation/new-individual evaluated-pop argmap)))
+                   ;; This is kind of messy and could use some cleaning up
+                   (update-in
+                    (update-in (assoc qc-args :gens-since-training-add 0)
+                               [:training-cases :inputs]
+                               #(cons % new-training-case))
+                    [:training-cases :outputs]
+                    ;;; THIS MIGHT BE TERRIBLE! If new-training-case is a primitive (like an int)
+                    ;;; this won't work. It also might do bad things if it's a single vector of 
+                    ;;; ints, for example, and we don't want to treat it as a bunch of different
+                    ;;; arguments.
+                    #(cons % (apply (:target-function argmap) new-training-case))))))
         ;;
         :else (recur (inc generation)
                      (if (:elitism argmap)
