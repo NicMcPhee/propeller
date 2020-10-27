@@ -5,6 +5,7 @@
             [propeller.push.utils.helpers :refer [get-stack-instructions]]
             [propeller.utils :as utils]
             [propeller.tools.math :as math]
+            [clojure.test.check.generators :as gen]
             #?(:cljs [cljs.reader :refer [read-string]])))
 
 ;; =============================================================================
@@ -100,6 +101,17 @@
        :total-error #?(:clj (apply +' errors)
                        :cljs (apply + errors))))))
 
+(def test-case-generator
+  (gen/tuple
+   ; Even though we provide a range of -100 to 100, the values we
+   ; we get seem to stay between -10 and 10. Not sure if that's a
+   ; meaningful concern or not.
+   (gen/double* {:min -100 :max 100})
+   (gen/choose -100 100)))
+
 (def argmap {:instructions            instructions
+             :target-function         target-function
              :error-function          error-function
-             :train-and-test-data     train-and-test-data})
+             :train-and-test-data     train-and-test-data
+             :test-case-generator     test-case-generator
+             :make-initial-state      make-initial-state})
