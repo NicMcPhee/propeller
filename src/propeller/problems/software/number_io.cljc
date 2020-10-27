@@ -48,9 +48,15 @@
       ;; ERCs (constants)
       (list random-float random-int))))
 
+; Add a float and an integer (although actually, it adds
+; pretty much anything).)
+(defn target-function
+  [f i]
+  (+ f i))
+
 (def train-and-test-data
-  (let [inputs (vec (repeatedly 1025 #(vector (random-int) (random-float))))
-        outputs (mapv #(apply + %) inputs)
+  (let [inputs (vec (repeatedly 1025 #(vector (random-float) (random-int))))
+        outputs (mapv target-function inputs)
         train-set {:inputs  (take 25 inputs)
                    :outputs (take 25 outputs)}
         test-set {:inputs  (drop 25 inputs)
