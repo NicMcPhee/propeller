@@ -1,6 +1,11 @@
 (ns propeller.quick-check
   (:require [clojure.string]
-            [propeller.genome :as genome]))
+            [propeller.push.state :as state]
+            [propeller.push.interpreter :as interpreter]
+            [propeller.genome :as genome]
+            [clojure.test.check :as tc]
+            [clojure.test.check.generators :as gen]
+            [clojure.test.check.properties :as prop]))
 
 (def arg-defaults 
   {:use-quick-check            false
@@ -34,4 +39,38 @@
        (:gens-to-add-new-training argmap))
    ))
 
-(defn make-new-training-case [] nil)
+(defn solves-target-function
+  [target-function inputs program argmap]
+  (prop/for-all [i (gen/such-that #(not (contains? inputs %)) (:test-case-generator argmap) 100)]
+                (let [result-state (interpreter/interpret-program
+                                    program
+                                    ((:make-initial-state argmap) i)
+                                    (:step-limit argmap))
+                      result (state/peek-stack result-state :integer)]
+                  (println "Trying new input")
+                  (println i)
+                  (println (sort inputs))
+                  (println (contains? inputs i))
+                  ; (println result-state)
+                  ; (println result)
+                  ; (println (target-function-hard i))
+                  (and (not= result :no-stack-item)
+                       (= (target-function i)
+                          result)))))
+
+(defn make-new-training-case 
+  [winning-individual qc-args argmap] 
+  (let [inputs (get-in qc-args [:training-cases :inputs])
+        quick-check-result (tc/quick-check
+                            100
+                            (solves-target-function 
+                             (:target-function argmap) 
+                             inputs
+                             ; Seems wasteful to have to redo this; might want to
+                             ; add the push program to the individual's map.
+                             (genome/plushy->push (:plushy winning-individual))
+                             argmap))]
+    (println quick-check-result)
+    (cond (:pass? quick-check-result) nil
+          ; (contains? inputs (first (:smallest (:shrunk quick-check-result)))) (first (:fail quick-check-result))
+          :else (first (:smallest (:shrunk quick-check-result))))))
