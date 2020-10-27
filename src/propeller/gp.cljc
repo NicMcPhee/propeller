@@ -71,7 +71,13 @@
           best-individual (first evaluated-pop)]
       (report evaluated-pop generation)
       (cond
-        (quick-check/add-new-training-case? argmap qc-args best-individual)
+        (and (not use-quick-check) (zero? (:total-error best-individual)))
+        (end-run generation best-individual argmap)
+        ;;
+        (>= generation max-generations)
+        nil
+        ;;
+        (and use-quick-check (quick-check/add-new-training-case? argmap qc-args best-individual))
         (let [new-training-case (quick-check/make-new-training-case)]
           (if (nil? new-training-case)
             (end-run generation best-individual argmap)
