@@ -58,6 +58,12 @@
     {:train train-set
      :test  test-set}))
 
+(defn make-initial-state
+  [input]
+  (assoc state/empty-state :input {:in1 (first input)
+                                   :in2 (last input)}
+         :output '("")))
+
 (defn error-function
   ([argmap individual]
    (error-function argmap individual (:train train-and-test-data)))
@@ -69,9 +75,7 @@
                         (state/peek-stack
                           (interpreter/interpret-program
                             program
-                            (assoc state/empty-state :input {:in1 (first input)
-                                                             :in2 (last input)}
-                                                     :output '(""))
+                            (make-initial-state input)
                             (:step-limit argmap))
                           :output))
                       inputs)
