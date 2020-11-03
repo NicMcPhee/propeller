@@ -52,7 +52,7 @@
 ; Add a float and an integer (although actually, it adds
 ; pretty much anything).)
 (defn target-function
-  [f i]
+  [[f i]]
   (+ f i))
 
 (def train-and-test-data

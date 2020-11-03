@@ -94,13 +94,10 @@
                    (update-in
                     (update-in (assoc qc-args :gens-since-training-add 0)
                                [:training-cases :inputs]
-                               #(cons % new-training-case))
+                               #(cons new-training-case %))
                     [:training-cases :outputs]
-                    ;;; THIS MIGHT BE TERRIBLE! If new-training-case is a primitive (like an int)
-                    ;;; this won't work. It also might do bad things if it's a single vector of 
-                    ;;; ints, for example, and we don't want to treat it as a bunch of different
-                    ;;; arguments.
-                    #(cons % (apply (:target-function argmap) new-training-case))))))
+                    (let [target-function (:target-function argmap)]
+                      #(cons (target-function new-training-case) %))))))
         ;;
         :else (recur (inc generation)
                      (if (:elitism argmap)
