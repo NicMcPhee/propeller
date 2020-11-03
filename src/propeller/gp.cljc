@@ -77,8 +77,8 @@
         (>= generation max-generations)
         nil
         ;;
-        (and use-quick-check (quick-check/add-new-training-case? argmap qc-args best-individual))
-        (let [new-training-case (quick-check/make-new-training-case)]
+        (and use-quick-check (quick-check/add-new-training-case? best-individual qc-args argmap))
+        (let [new-training-case (quick-check/make-new-training-case best-individual qc-args argmap)]
           (if (nil? new-training-case)
             (end-run generation best-individual argmap)
             ;; add new test case and recur

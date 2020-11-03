@@ -28,7 +28,7 @@
 ; * Add test case if average total error below threshold
 ; * Add test case if proportion of number of zero errors above threshold 
 (defn add-new-training-case?
-  [argmap gp-loop-args best-individual]
+  [best-individual gp-loop-args argmap]
   (or
    (<= (:total-error best-individual) (* (num-training-cases gp-loop-args) 
                                          (:average-error-threshold argmap)))
