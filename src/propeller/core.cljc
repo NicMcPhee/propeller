@@ -4,7 +4,7 @@
             [propeller.quick-check :as quick-check]
             [propeller.problems.simple-regression :as regression]
             [propeller.problems.string-classification :as string-classif]
-            [propeller.problems.software.number-io :as number-io]
+            ;[propeller.problems.software.number-io :as number-io]
             [propeller.problems.software.smallest :as smallest]
             #?(:cljs [cljs.reader :refer [read-string]])))
 
@@ -24,8 +24,10 @@
          :variation               {:umad 0.5 :crossover 0.5}
          :elitism                 false}
         quick-check/arg-defaults
-        number-io/argmap
+        ;number-io/argmap
+        (require (symbol (str "propeller.problems." (first args))))
+        (eval (symbol (str "propeller.problems." (first args) "/argmap")))
         (apply hash-map
-               (map read-string args)))
+               (map read-string (rest args))))
       [:error-function]
       identity)))
