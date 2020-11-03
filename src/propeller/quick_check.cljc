@@ -41,7 +41,7 @@
 
 (defn solves-target-function
   [target-function inputs program argmap]
-  (prop/for-all [i (gen/such-that #(not (contains? inputs %)) (:test-case-generator argmap) 100)]
+  (prop/for-all [i (gen/such-that #(not (contains? (set inputs) %)) (:test-case-generator argmap) 100)]
                 (let [result-state (interpreter/interpret-program
                                     program
                                     ((:make-initial-state argmap) i)
@@ -50,10 +50,9 @@
                   (println "Trying new input")
                   (println i)
                   (println (sort inputs))
-                  (println (contains? inputs i))
+                  ;(println (contains? (set inputs) i))
                   ; (println result-state)
                   ; (println result)
-                  ; (println (target-function-hard i))
                   (and (not= result :no-stack-item)
                        (= (target-function i)
                           result)))))
