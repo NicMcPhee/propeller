@@ -106,7 +106,7 @@
    ; Even though we provide a range of -100 to 100, the values we
    ; we get seem to stay between -10 and 10. Not sure if that's a
    ; meaningful concern or not.
-   (gen/double* {:min -100 :max 100})
+   (gen/double* {:NaN? false :min -100 :max 100})
    (gen/choose -100 100)))
 
 (def argmap {:instructions            instructions
