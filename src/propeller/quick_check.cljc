@@ -5,7 +5,8 @@
             [propeller.genome :as genome]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
-            [clojure.test.check.properties :as prop]))
+            [clojure.test.check.properties :as prop]
+            #?(:cljs [cljs.reader :refer [read-string]])))
 
 (def arg-defaults 
   {:use-quick-check            false
@@ -46,16 +47,20 @@
                                     program
                                     ((:make-initial-state argmap) i)
                                     (:step-limit argmap))
-                      result (state/peek-stack result-state :integer)]
+                      result (state/peek-stack result-state :output)]
+                  ;; TODO: Remove/Clean up prints
                   (println "Trying new input")
                   (println i)
                   (println (sort inputs))
                   ;(println (contains? (set inputs) i))
                   ; (println result-state)
-                  ; (println result)
+                   (println result)
                   (and (not= result :no-stack-item)
-                       (= (target-function i)
-                          result)))))
+                         (try
+                           (= (target-function i)
+                              (read-string result))
+                           #?(:clj (catch Exception e false)
+                              :cljs (catch js/Error. e false)))))))
 
 (defn make-new-training-case 
   [winning-individual qc-args argmap] 
