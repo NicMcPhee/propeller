@@ -12,8 +12,8 @@
 ;; SMALLEST PROBLEM
 ;;
 ;; This problem file defines the following problem:
-;; There are two inputs, a float and an int. The program must read them in, find
-;; their sum as a float, and print the result as a float.
+;; There are four ints as inputs. The program must read them in, 
+;; find the smallest one, and print the result.
 ;;
 ;; Problem Source: C. Le Goues et al., "The ManyBugs and IntroClass Benchmarks
 ;; for Automated Repair of C Programs," in IEEE Transactions on Software
