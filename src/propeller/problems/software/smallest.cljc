@@ -49,10 +49,14 @@
       ;; ERCs (constants)
       (list random-int))))
 
+(defn target-function
+  [[i1 i2 i3 i4]]
+  (min i1 i2 i3 i4))
+
 (def train-and-test-data
   (let [inputs (vec (repeatedly 1100 #(vector (random-int) (random-int)
                                               (random-int) (random-int))))
-        outputs (mapv #(apply min %) inputs)
+        outputs (mapv target-function inputs)
         train-set {:inputs  (take 100 inputs)
                    :outputs (take 100 outputs)}
         test-set {:inputs  (drop 100 inputs)
@@ -92,3 +96,7 @@
        :errors errors
        :total-error #?(:clj (apply +' errors)
                        :cljs (apply + errors))))))
+
+(def argmap {:instructions instructions
+             :target-function target-function
+             })
