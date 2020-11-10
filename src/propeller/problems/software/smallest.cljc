@@ -66,10 +66,9 @@
 
 (defn error-function
   ([argmap individual]
-   (error-function argmap individual :train))
-  ([argmap individual subset]
+   (error-function argmap individual (:train train-and-test-data)))
+  ([argmap individual data]
    (let [program (genome/plushy->push (:plushy individual))
-         data (get train-and-test-data subset)
          inputs (:inputs data)
          correct-outputs (:outputs data)
          outputs (map (fn [input]
@@ -97,6 +96,8 @@
        :total-error #?(:clj (apply +' errors)
                        :cljs (apply + errors))))))
 
-(def argmap {:instructions instructions
-             :target-function target-function
+(def argmap {:instructions        instructions
+             :target-function     target-function
+             :error-function      error-function
+             :train-and-test-data train-and-test-data
              })
