@@ -4,6 +4,7 @@
             [propeller.push.state :as state]
             [propeller.push.utils.helpers :refer [get-stack-instructions]]
             [propeller.utils :as utils]
+            [clojure.test.check.generators :as gen]
             #?(:cljs [cljs.reader :refer [read-string]])))
 
 ;; =============================================================================
@@ -100,8 +101,12 @@
        :total-error #?(:clj (apply +' errors)
                        :cljs (apply + errors))))))
 
+(def test-case-generator
+  (gen/vector (gen/choose -100 100) 4))
+
 (def argmap {:instructions        instructions
              :target-function     target-function
              :error-function      error-function
              :train-and-test-data train-and-test-data
+             :test-case-generator test-case-generator
              :make-initial-state  make-initial-state})
