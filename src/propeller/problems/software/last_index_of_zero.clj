@@ -17,6 +17,11 @@
         clojush.instructions.tag
         [clojure.math numeric-tower combinatorics]))
 
+; TODO We should pull out the repetition of `random-int`
+; into someplace like `util`.
+; Random integer between -50 and 50
+(defn random-int [] (- (rand-int 51) 50))
+
 (def instructions
   (utils/not-lazy
    (concat
@@ -27,7 +32,13 @@
     ;; ERCs
     ;; Clojush implementation actually provides random integers 
     ;; in the range [-50, 50], but the paper says to use only zero.
-    (list 0))))
+    ;; I talked to Tom Helmuth, and it's clearly just an "oops"
+    ;; that these aren't the same. We should probably use the
+    ;; Clojush version for better comparisons, but we might also
+    ;; want to include 0 and see what impact that has. (It seems
+    ;; likely to make the problem easier.)
+    ;; (list 0 random-int)
+    (list random-int))))
 
 ;; Define test cases
 (defn random-sequence-with-at-least-one-zero
