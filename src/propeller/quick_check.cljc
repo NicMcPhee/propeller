@@ -47,7 +47,7 @@
                                     program
                                     ((:make-initial-state argmap) i)
                                     (:step-limit argmap))
-                      result (state/peek-stack result-state :output)]
+                      result (state/peek-stack result-state (:result-stack argmap))]
                   ;; TODO: Remove/Clean up prints
                   (println "Trying new input")
                   (println i)

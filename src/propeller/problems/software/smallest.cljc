@@ -109,4 +109,5 @@
              :error-function      error-function
              :train-and-test-data train-and-test-data
              :test-case-generator test-case-generator
-             :make-initial-state  make-initial-state})
+             :make-initial-state  make-initial-state
+             :result-stack        :output})
