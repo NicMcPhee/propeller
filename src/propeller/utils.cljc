@@ -1,4 +1,7 @@
-(ns propeller.utils)
+(ns propeller.utils
+  (:require
+   [clojure.java.io :as io]
+   [clojure.edn :as edn]))
 
 (defn indexof
   "Returns the first index of an element in a collection. If the element is not
@@ -29,3 +32,15 @@
     (if (fn? instruction)
       (instruction)
       instruction)))
+
+(defn load-edn
+  "Load edn from an io/reader source (filename or io/resource)."
+  [source]
+  (try
+    (with-open [r (io/reader source)]
+      (edn/read (java.io.PushbackReader. r)))
+
+    (catch java.io.IOException e
+      (printf "Couldn't open '%s': %s\n" source (.getMessage e)))
+    (catch RuntimeException e
+      (printf "Error parsing edn file '%s': %s\n" source (.getMessage e)))))
