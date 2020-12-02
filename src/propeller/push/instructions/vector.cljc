@@ -173,7 +173,11 @@
     (let [lit-stack (get-vector-literal-type stack)]
       (make-instruction state
                         (fn [lit1 lit2 vect]
-                          (assoc vect (utils/indexof lit1 vect) lit2))
+                          (let [index (utils/indexof lit1 vect)]
+                            (println index lit1 lit2 vect)
+                            (if (< index 0)
+                              vect
+                              (assoc vect index lit2))))
                         [lit-stack lit-stack stack]
                         stack))))
 
