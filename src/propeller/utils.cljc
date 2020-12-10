@@ -6,11 +6,11 @@
 (defn indexof
   "Returns the first index of an element in a collection. If the element is not
   present in the collection, returns -1."
-  [s v]
-  (loop [idx 0 items s]
+  [element coll]
+  (loop [idx 0 items coll]
     (cond
       (empty? items) -1
-      (= v (first items)) idx
+      (= element (first items)) idx
       :else (recur (inc idx) (rest items)))))
 
 (defn not-lazy
