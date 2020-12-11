@@ -107,13 +107,17 @@
 
 ;; Pushes the Nth item of the top element of the vector stack onto the
 ;; approrpiately-typed literal stack, where N is taken from the INTEGER stack.
-;; To insure the index is within bounds, N is taken mod the vector length
-(def _nth
+;; To insure the index is within bounds, N is taken mod the vector length.
+;; If the vector has a length of 0, nothing happens
+(def _nth-with-wrapping
   ^{:stacks #{:elem :integer}}
   (fn [stack state]
     (let [lit-stack (get-vector-literal-type stack)]
       (make-instruction state
-                        #(get %2 (mod %1 (count %2)))
+                        #(let [vecLength (count %2)]
+                           (if (= vecLength 0)
+                             :ignore-instruction
+                             (get %2 (mod %1 vecLength))))
                         [:integer stack]
                         lit-stack))))
 
@@ -173,7 +177,10 @@
     (let [lit-stack (get-vector-literal-type stack)]
       (make-instruction state
                         (fn [lit1 lit2 vect]
-                          (assoc vect (utils/indexof lit1 vect) lit2))
+                          (let [index (utils/indexof lit1 vect)]
+                            (if (< index 0)
+                              vect
+                              (assoc vect index lit2))))
                         [lit-stack lit-stack stack]
                         stack))))
 
@@ -191,14 +198,17 @@
 
 ;; Replaces in the top vector the item at index N (taken from the INTEGER stack)
 ;; with the top item from the appropriately-typed literal stack. To insure the
-;; index is within bounds, N is taken mod the vector length
+;; index is within bounds, N is taken mod the vector length. If the vector 
+;; is empty this instruction is ignored.
 (def _set
   ^{:stacks #{:elem :integer}}
   (fn [stack state]
     (let [lit-stack (get-vector-literal-type stack)]
       (make-instruction state
                         (fn [lit n vect]
-                          (assoc vect (mod n (count vect)) lit))
+                          (if (= (count vect) 0)
+                            :ignore-instruction
+                            (assoc vect (mod n (count vect)) lit)))
                         [:integer lit-stack stack]
                         stack))))
 
@@ -210,7 +220,7 @@
     (make-instruction state
                       (fn [stop-raw start-raw vect]
                         (let [start (min (count vect) (max 0 start-raw))
-                              stop (min (count vect) (max start-raw stop-raw))]
+                              stop (min (count vect) (max 0 start-raw stop-raw))]
                           (subvec vect start stop)))
                       [:integer :integer stack]
                       stack)))
@@ -226,5 +236,5 @@
 (generate-instructions
   [:vector_boolean :vector_float :vector_integer :vector_string]
   [_butlast _concat _conj _contains _emptyvector _first _indexof _iterate
-   _last _length _nth _occurrencesof _pushall _remove _replace _replacefirst
+   _last _length _nth-with-wrapping _occurrencesof _pushall _remove _replace _replacefirst
    _rest _reverse _set _subvec _take])
