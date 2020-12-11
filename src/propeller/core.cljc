@@ -4,13 +4,21 @@
             [propeller.quick-check :as quick-check]
             [propeller.problems.simple-regression :as regression]
             [propeller.problems.string-classification :as string-classif]
-            ;[propeller.problems.software.number-io :as number-io]
-            [propeller.problems.software.smallest :as smallest]
             #?(:cljs [cljs.reader :refer [read-string]])))
+
+(defn eval-problem-var
+  [problem-name var-name]
+  (eval (symbol (str "propeller.problems." problem-name "/" var-name))))
 
 (defn -main
   "Runs propel-gp, giving it a map of arguments."
   [& args]
+  (when (empty? args)
+    (println "You must specify a problem to run.")
+    (println "Try, for example:")
+    (println "   lein run software.smallest")
+    (System/exit 1))
+  (require (symbol (str "propeller.problems." (first args))))
   (gp/gp
     (update-in
       (merge

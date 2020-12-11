@@ -10,6 +10,9 @@ pom.xml.asc
 /.nrepl-port
 .hgignore
 .hg/
+out
+notes
+.idea/
 
 # Don't commit the data directory that we'll
 # use to hold the data from
