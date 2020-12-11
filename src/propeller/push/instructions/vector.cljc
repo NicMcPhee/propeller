@@ -178,7 +178,6 @@
       (make-instruction state
                         (fn [lit1 lit2 vect]
                           (let [index (utils/indexof lit1 vect)]
-                            (println index lit1 lit2 vect)
                             (if (< index 0)
                               vect
                               (assoc vect index lit2))))
@@ -221,7 +220,7 @@
     (make-instruction state
                       (fn [stop-raw start-raw vect]
                         (let [start (min (count vect) (max 0 start-raw))
-                              stop (min (count vect) (max start-raw stop-raw))]
+                              stop (min (count vect) (max 0 start-raw stop-raw))]
                           (subvec vect start stop)))
                       [:integer :integer stack]
                       stack)))
