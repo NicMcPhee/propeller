@@ -52,7 +52,7 @@
 
 (defn target-function
   [[i1 i2 i3 i4]]
-  (min i1 i2 i3 i4))
+  (str (min i1 i2 i3 i4)))
 
 (def train-and-test-data
   (let [inputs (vec (repeatedly 1100 #(vector (random-int) (random-int)
@@ -79,7 +79,11 @@
   ([argmap individual data]
    (let [program (genome/plushy->push (:plushy individual))
          inputs (:inputs data)
-         correct-outputs (:outputs data)
+         ; This is semi-expensive to re-parse the outputs every time.
+         ; We could add a `:parsed-outputs` entry to the `train-and-test-data`
+         ; or we could use the `:result-equality-check` and leave these as
+         ; numbers.
+         correct-outputs (map read-string (:outputs data))
          outputs (map (fn [input]
                         (state/peek-stack
                           (interpreter/interpret-program
