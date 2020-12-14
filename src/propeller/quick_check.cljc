@@ -47,7 +47,10 @@
                                     program
                                     ((:make-initial-state argmap) i)
                                     (:step-limit argmap))
-                      result (state/peek-stack result-state (:result-stack argmap))]
+                      result (state/peek-stack result-state (:result-stack argmap))
+                      ; This defaults to regular =, but we can specify problem-dependent
+                      ; equality checks for Quick Check to use.
+                      equality-test (get argmap :result-equality-test =)]
                   ;; TODO: Remove/Clean up prints
                   (println "Trying new input")
                   (println i)
@@ -57,8 +60,8 @@
                    (println result)
                   (and (not= result :no-stack-item)
                          (try
-                           (= (target-function i)
-                              (read-string result))
+                           (equality-test (target-function i)
+                                          result)
                            #?(:clj (catch Exception e false)
                               :cljs (catch js/Error. e false)))))))
 
