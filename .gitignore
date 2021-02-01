@@ -10,6 +10,13 @@ pom.xml.asc
 /.nrepl-port
 .hgignore
 .hg/
+*.iml
+.idea/
+out
+notes
+.clj-kondo/
+.idea/
+.calva/
 
 # Don't commit the data directory that we'll
 # use to hold the data from
