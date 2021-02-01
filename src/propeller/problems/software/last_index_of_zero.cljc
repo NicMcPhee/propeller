@@ -42,12 +42,16 @@
     (list random-int))))
 
 (def train-and-test-data
-  (let [edn-data (rest (utils/load-edn "data/last-index-of-zero/last-index-of-zero-edge.edn"))]
-    {:train {:inputs (map (comp vector first) edn-data)
-             :outputs (map second edn-data)}
+  (let [edn-edge-data (rest (utils/load-edn "data/last-index-of-zero/last-index-of-zero-edge.edn"))
+        edn-random-data (take 1078 (rest (utils/load-edn "data/last-index-of-zero/last-index-of-zero-random.edn")))
+        train-data (conj (take 78 edn-random-data) (first edn-edge-data))
+        test-data (take-last 1000 edn-random-data)]
+    {:train {:inputs (map (comp vector first) train-data)
+             :outputs (map second train-data)}
      ; TODO – This should be a non-trivial subset of the random cases.
      ; Nic thinks that Tom Helmuth used 1,000 cases in his dissertation work.
-     :test  []}))
+     :test {:inputs (map (comp vector first) test-data)
+            :outputs (map second test-data)}}))
 
 ; Helper function for error function
 (defn last-index-of-zero-test-cases
