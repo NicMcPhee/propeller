@@ -26,7 +26,8 @@
   (utils/not-lazy
    (concat
     ;; stack-specific instructions
-    (get-stack-instructions #{:integer :boolean :vector_integer})
+    (get-stack-instructions #{:integer :boolean :vector_integer :exec})
+    (repeat 20 'close)
     ;; input instructions
     (list :in1)
     ;; ERCs
