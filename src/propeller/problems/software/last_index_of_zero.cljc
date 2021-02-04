@@ -44,7 +44,7 @@
 (def train-and-test-data
   (let [edn-edge-data (rest (utils/load-edn "data/last-index-of-zero/last-index-of-zero-edge.edn"))
         edn-random-data (take 1078 (rest (utils/load-edn "data/last-index-of-zero/last-index-of-zero-random.edn")))
-        train-data (conj (take 78 edn-random-data) (first edn-edge-data))
+        train-data (concat edn-edge-data (take 78 edn-random-data))
         test-data (take-last 1000 edn-random-data)]
     {:train {:inputs (map (comp vector first) train-data)
              :outputs (map second train-data)}
