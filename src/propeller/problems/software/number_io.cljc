@@ -4,8 +4,8 @@
             [propeller.push.state :as state]
             [propeller.push.utils.helpers :refer [get-stack-instructions]]
             [propeller.utils :as utils]
-            [propeller.push.state :as state]
             [propeller.tools.math :as math]
+            [clojure.test.check.generators :as gen]
             #?(:cljs [cljs.reader :refer [read-string]])))
 
 ;; =============================================================================
@@ -49,9 +49,15 @@
       ;; ERCs (constants)
       (list random-float random-int))))
 
+; Add a float and an integer (although actually, it adds
+; pretty much anything).)
+(defn target-function
+  [[f i]]
+  (str (+ f i)))
+
 (def train-and-test-data
-  (let [inputs (vec (repeatedly 1025 #(vector (random-int) (random-float))))
-        outputs (mapv #(apply + %) inputs)
+  (let [inputs (vec (repeatedly 1025 #(vector (random-float) (random-int))))
+        outputs (mapv target-function inputs)
         train-set {:inputs  (take 25 inputs)
                    :outputs (take 25 outputs)}
         test-set {:inputs  (drop 25 inputs)
@@ -59,21 +65,28 @@
     {:train train-set
      :test  test-set}))
 
+(defn make-initial-state
+  [input]
+  (assoc state/empty-state :input {:in1 (first input)
+                                   :in2 (last input)}
+         :output '("")))
+
 (defn error-function
   ([argmap individual]
-   (error-function argmap individual :train))
-  ([argmap individual subset]
-   (let [program (genome/plushy->push (:plushy individual) argmap)
-         data (get train-and-test-data subset)
+   (error-function argmap individual (:train train-and-test-data)))
+  ([argmap individual data]
+   (let [program (genome/plushy->push (:plushy individual))
          inputs (:inputs data)
-         correct-outputs (:outputs data)
+         ; This is semi-expensive to re-parse the outputs every time.
+         ; We could add a `:parsed-outputs` entry to the `train-and-test-data`
+         ; or we could use the `:result-equality-check` and leave these as
+         ; numbers.
+         correct-outputs (map read-string (:outputs data))
          outputs (map (fn [input]
                         (state/peek-stack
                           (interpreter/interpret-program
                             program
-                            (assoc state/empty-state :input {:in1 (first input)
-                                                             :in2 (last input)}
-                                                     :output '(""))
+                            (make-initial-state input)
                             (:step-limit argmap))
                           :output))
                       inputs)
@@ -91,3 +104,19 @@
        :errors errors
        :total-error #?(:clj (apply +' errors)
                        :cljs (apply + errors))))))
+
+(def test-case-generator
+  (gen/tuple
+   ; Even though we provide a range of -100 to 100, the values we
+   ; we get seem to stay between -10 and 10. Not sure if that's a
+   ; meaningful concern or not.
+   (gen/double* {:NaN? false :min -100 :max 100})
+   (gen/choose -100 100)))
+
+(def argmap {:instructions            instructions
+             :target-function         target-function
+             :error-function          error-function
+             :train-and-test-data     train-and-test-data
+             :test-case-generator     test-case-generator
+             :make-initial-state      make-initial-state
+             :result-stack            :output})

@@ -7,6 +7,9 @@
 ;; Number of blocks opened by instructions (default = 0)
 (def opens {:exec_dup 1
             :exec_if  2
+            :exec_do_range 1
+            :exec_do_count 1
+            :exec_do_times 1
             :exec_when 1
             :exec_while 1
             :exec_do_while 1

@@ -15,7 +15,8 @@
    [propeller.genome :as genome]
    [propeller.push.utils.helpers :refer [get-stack-instructions]]
    [propeller.utils :as utils]
-   [propeller.tools.math :as math]))
+   [propeller.tools.math :as math]
+   [clojure.test.check.generators :as gen]))
 
 ; TODO We should pull out the repetition of `random-int`
 ; into someplace like `util`.
@@ -41,6 +42,10 @@
     ;; (list 0 random-int)
     (list random-int))))
 
+(defn target-function
+  [[i1]]
+  (.lastIndexOf i1 0))
+
 (def train-and-test-data
   (let [edn-edge-data (rest (utils/load-edn "data/last-index-of-zero/last-index-of-zero-edge.edn"))
         edn-random-data (take 1078 (rest (utils/load-edn "data/last-index-of-zero/last-index-of-zero-random.edn")))
@@ -63,10 +68,9 @@
 
 (defn error-function
   ([argmap individual]
-   (error-function argmap individual :train))
-  ([argmap individual subset]
+   (error-function argmap individual (:train train-and-test-data)))
+  ([argmap individual data]
    (let [program (genome/plushy->push (:plushy individual))
-         data (get train-and-test-data subset)
          inputs (:inputs data)
          correct-outputs (:outputs data)
          outputs (map (fn [input]
@@ -78,9 +82,9 @@
                          :integer))
                       inputs)
          errors (map (fn [correct-output output]
-                      (if (= output :no-stack-item)
-                        1000000
-                        (math/abs (- correct-output output))))
+                       (if (= output :no-stack-item)
+                         1000000
+                         (math/abs (- correct-output output))))
                      correct-outputs
                      outputs)]
      (assoc individual
@@ -88,3 +92,28 @@
             :errors errors
             :total-error #?(:clj (apply +' errors)
                             :cljs (apply + errors))))))
+
+(defn at-least-one-zero
+  [xs]
+  (if (>= (.indexOf xs 0) 0)
+    xs
+    ; Pick a random element and set it to zero.
+    (let [n (rand-int (count xs))]
+      (assoc xs n 0))))
+
+(def test-case-generator
+  (gen/vector
+  (gen/fmap at-least-one-zero (gen/vector (gen/choose -50 50) 1 50))
+   1))
+
+(defn make-initial-state
+  [input]
+  (assoc state/empty-state :input {:in1 (get input 0)}))
+
+(def argmap {:instructions        instructions
+             :target-function     target-function
+             :error-function      error-function
+             :train-and-test-data train-and-test-data
+             :test-case-generator test-case-generator
+             :make-initial-state  make-initial-state
+             :result-stack        :integer})

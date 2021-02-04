@@ -4,7 +4,7 @@
             [propeller.push.state :as state]
             [propeller.push.utils.helpers :refer [get-stack-instructions]]
             [propeller.utils :as utils]
-            [propeller.push.state :as state]
+            [clojure.test.check.generators :as gen]
             #?(:cljs [cljs.reader :refer [read-string]])))
 
 ;; =============================================================================
@@ -13,8 +13,8 @@
 ;; SMALLEST PROBLEM
 ;;
 ;; This problem file defines the following problem:
-;; There are two inputs, a float and an int. The program must read them in, find
-;; their sum as a float, and print the result as a float.
+;; There are four ints as inputs. The program must read them in, 
+;; find the smallest one, and print the result.
 ;;
 ;; Problem Source: C. Le Goues et al., "The ManyBugs and IntroClass Benchmarks
 ;; for Automated Repair of C Programs," in IEEE Transactions on Software
@@ -50,10 +50,14 @@
       ;; ERCs (constants)
       (list random-int))))
 
+(defn target-function
+  [[i1 i2 i3 i4]]
+  (str (min i1 i2 i3 i4)))
+
 (def train-and-test-data
   (let [inputs (vec (repeatedly 1100 #(vector (random-int) (random-int)
                                               (random-int) (random-int))))
-        outputs (mapv #(apply min %) inputs)
+        outputs (mapv target-function inputs)
         train-set {:inputs  (take 100 inputs)
                    :outputs (take 100 outputs)}
         test-set {:inputs  (drop 100 inputs)
@@ -61,23 +65,30 @@
     {:train train-set
      :test  test-set}))
 
+(defn make-initial-state
+  [input]
+  (assoc state/empty-state :input {:in1 (get input 0)
+                                   :in2 (get input 1)
+                                   :in3 (get input 2)
+                                   :in4 (get input 3)}
+         :output '("")))
+
 (defn error-function
   ([argmap individual]
-   (error-function argmap individual :train))
-  ([argmap individual subset]
-   (let [program (genome/plushy->push (:plushy individual) argmap)
-         data (get train-and-test-data subset)
+   (error-function argmap individual (:train train-and-test-data)))
+  ([argmap individual data]
+   (let [program (genome/plushy->push (:plushy individual))
          inputs (:inputs data)
-         correct-outputs (:outputs data)
+         ; This is semi-expensive to re-parse the outputs every time.
+         ; We could add a `:parsed-outputs` entry to the `train-and-test-data`
+         ; or we could use the `:result-equality-check` and leave these as
+         ; numbers.
+         correct-outputs (map read-string (:outputs data))
          outputs (map (fn [input]
                         (state/peek-stack
                           (interpreter/interpret-program
                             program
-                            (assoc state/empty-state :input {:in1 (get input 0)
-                                                             :in2 (get input 1)
-                                                             :in3 (get input 2)
-                                                             :in4 (get input 3)}
-                                                     :output '(""))
+                            (make-initial-state input)
                             (:step-limit argmap))
                           :output))
                       inputs)
@@ -93,3 +104,14 @@
        :errors errors
        :total-error #?(:clj (apply +' errors)
                        :cljs (apply + errors))))))
+
+(def test-case-generator
+  (gen/vector (gen/choose -100 100) 4))
+
+(def argmap {:instructions        instructions
+             :target-function     target-function
+             :error-function      error-function
+             :train-and-test-data train-and-test-data
+             :test-case-generator test-case-generator
+             :make-initial-state  make-initial-state
+             :result-stack        :output})
