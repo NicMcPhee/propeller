@@ -65,6 +65,7 @@
          ;; it can build the initial test cases in a dynamic way based
          ;; on the problem info in the argmap.
          qc-args (quick-check/make-gp-loop-args argmap)]
+    (println qc-args)
     (let [evaluated-pop (sort-by :total-error
                                  (#?(:clj  pmap
                                      :cljs map)

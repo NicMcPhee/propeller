@@ -52,12 +52,12 @@
                       ; equality checks for Quick Check to use.
                       equality-test (get argmap :result-equality-test =)]
                   ;; TODO: Remove/Clean up prints
-                  (println "Trying new input")
-                  (println i)
-                  (println (sort inputs))
+                  ; (println "Trying new input")
+                  ; (println i)
+                  ; (println (sort inputs))
                   ;(println (contains? (set inputs) i))
                   ; (println result-state)
-                   (println result)
+                  ;  (println result)
                   (and (not= result :no-stack-item)
                          (try
                            (equality-test (target-function i)
