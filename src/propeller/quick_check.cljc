@@ -17,8 +17,8 @@
 
 (defn make-gp-loop-args [argmap]
   (let [num-initial (:num-initial-training-cases argmap)]
-    {:training-cases {:inputs  (take num-initial (get-in argmap [:train-and-test-data :train :inputs]))
-                      :outputs (take num-initial (get-in argmap [:train-and-test-data :train :outputs]))}
+    {:training-cases {:inputs  (take num-initial (get-in argmap [:train-and-test-data :test :inputs]))
+                      :outputs (take num-initial (get-in argmap [:train-and-test-data :test :outputs]))}
      :gens-since-training-add 0}))
 
 (defn num-training-cases [gp-loop-args]
