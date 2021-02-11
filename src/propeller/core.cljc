@@ -29,7 +29,7 @@
          :parent-selection        :lexicase
          :tournament-size         5
          :umad-rate               0.1
-         :variation               {:umad 0.5 :crossover 0.5}
+         :variation               {:umad 0.85 :crossover 0.15}
          :elitism                 false}
         quick-check/arg-defaults
         ;number-io/argmap
