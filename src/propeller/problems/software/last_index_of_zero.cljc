@@ -113,6 +113,7 @@
   (assoc state/empty-state :input {:in1 (get input 0)}))
 
 (def argmap {:instructions        instructions
+             :step-limit          600
              :target-function     target-function
              :error-function      error-function
              :train-and-test-data train-and-test-data
