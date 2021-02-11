@@ -165,37 +165,37 @@
         (state/push-to-stack
           (state/push-to-stack state :exec :exec_while) :exec to-do)))))
 
-;; The "K combinator" - removes the second item on the EXEC stack
-(def-instruction
-  :exec_k
-  ^{:stacks #{:exec}}
-  (fn [state]
-    (make-instruction state (fn [_ first] first) [:exec :exec] :exec)))
+;; ;; The "K combinator" - removes the second item on the EXEC stack
+;; (def-instruction
+;;   :exec_k
+;;   ^{:stacks #{:exec}}
+;;   (fn [state]
+;;     (make-instruction state (fn [_ first] first) [:exec :exec] :exec)))
 
-;; The "S combinator" - pops 3 items from the EXEC stack, which we will call A,
-;; B, and C (with A being the first one popped), and then pushes a list
-;; containing B and C back onto the EXEC stack, followed by another instance of
-;; C, followed by another instance of A
-(def-instruction
-  :exec_s
-  ^{:stacks #{:exec}}
-  (fn [state]
-    (if (< (count (:exec state)) 3)
-      state
-      (let [[a b c] (state/peek-stack-many state :exec 3)
-            popped-state (state/pop-stack-many state :exec 3)
-            to-push-back (list a c (list b c))]
-        (state/push-to-stack-many popped-state :exec to-push-back)))))
+;; ;; The "S combinator" - pops 3 items from the EXEC stack, which we will call A,
+;; ;; B, and C (with A being the first one popped), and then pushes a list
+;; ;; containing B and C back onto the EXEC stack, followed by another instance of
+;; ;; C, followed by another instance of A
+;; (def-instruction
+;;   :exec_s
+;;   ^{:stacks #{:exec}}
+;;   (fn [state]
+;;     (if (< (count (:exec state)) 3)
+;;       state
+;;       (let [[a b c] (state/peek-stack-many state :exec 3)
+;;             popped-state (state/pop-stack-many state :exec 3)
+;;             to-push-back (list a c (list b c))]
+;;         (state/push-to-stack-many popped-state :exec to-push-back)))))
 
-;; The "Y combinator" - inserts beneath the top item of the EXEC stack a new
-;; item of the form "(:exec_y TOP_ITEM)"
-(def-instruction
-  :exec_y
-  ^{:stacks #{:exec}}
-  (fn [state]
-    (if (state/empty-stack? state :exec)
-      state
-      (let [top-item (state/peek-stack state :exec)
-            popped-state (state/pop-stack state :exec)
-            to-push-back (list top-item (list :exec_y top-item))]
-        (state/push-to-stack-many popped-state :exec to-push-back)))))
+;; ;; The "Y combinator" - inserts beneath the top item of the EXEC stack a new
+;; ;; item of the form "(:exec_y TOP_ITEM)"
+;; (def-instruction
+;;   :exec_y
+;;   ^{:stacks #{:exec}}
+;;   (fn [state]
+;;     (if (state/empty-stack? state :exec)
+;;       state
+;;       (let [top-item (state/peek-stack state :exec)
+;;             popped-state (state/pop-stack state :exec)
+;;             to-push-back (list top-item (list :exec_y top-item))]
+;;         (state/push-to-stack-many popped-state :exec to-push-back)))))
