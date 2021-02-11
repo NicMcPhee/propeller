@@ -87,7 +87,8 @@
             :behaviors outputs
             :errors errors
             :total-error #?(:clj (apply +' errors)
-                            :cljs (apply + errors))))))
+                            :cljs (apply + errors))
+            :num-zero-errors (count (filter zero? errors))))))
 
 (defn at-least-one-zero
   [xs]
