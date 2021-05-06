@@ -10,11 +10,12 @@ pom.xml.asc
 /.nrepl-port
 .hgignore
 .hg/
+*.iml
 out
 notes
+.clj-kondo/
 .idea/
 .calva/
-.clj-kondo/
 .lsp/
 .shadow-cljs/
 
@@ -22,3 +23,4 @@ notes
 # use to hold the data from
 # https://github.com/thelmuth/program-synthesis-benchmark-datasets
 /data
+**/.DS_Store

@@ -14,20 +14,24 @@
 
 (defn report
   "Reports information each generation."
-  [pop generation]
+  [pop generation argmap]
   (let [best (first pop)]
     (println "-------------------------------------------------------")
     (println "               Report for Generation" generation)
     (println "-------------------------------------------------------")
     (print "Best plushy: ") (prn (:plushy best))
-    (print "Best program: ") (prn (genome/plushy->push (:plushy best)))
+    (print "Best program: ") (prn (genome/plushy->push (:plushy best) argmap))
     (println "Best total error:" (:total-error best))
     (println "Best errors:" (:errors best))
     (println "Best behaviors:" (:behaviors best))
     (println "Genotypic diversity:"
              (float (/ (count (distinct (map :plushy pop))) (count pop))))
+    (println "Behavioral diversity:"
+             (float (/ (count (distinct (map :behaviors pop))) (count pop))))
     (println "Average genome length:"
              (float (/ (reduce + (map count (map :plushy pop))) (count pop))))
+    (println "Average total error:"
+             (float (/ (reduce + (map :total-error pop)) (count pop))))
     (println)))
 
 (defn end-run
@@ -85,7 +89,7 @@
                                     (partial error-function argmap))
                                   population))
           best-individual (first evaluated-pop)]
-      (report evaluated-pop generation)
+      (report evaluated-pop generation argmap)
       (cond
         (and (not use-quick-check) (zero? (:total-error best-individual)))
         (end-run generation best-individual argmap)
