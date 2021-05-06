@@ -25,7 +25,8 @@
             [propeller.utils :as utils]
             [propeller.tools.metrics :as metrics]
             [propeller.tools.math :as math]
-            #?(:cljs [cljs.reader :refer [read-string]])))
+            #?(:cljs [cljs.reader :refer [read-string]])
+            [clojure.test.check.generators :as gen]))
 
 ; TODO We should pull out the repetition of `random-int`
 ; into someplace like `util`.
@@ -57,13 +58,11 @@
      :test {:inputs (map (comp vector :input1) test-data)
             :outputs (map :output1 test-data)}}))
 
-
 (defn error-function
   ([argmap individual]
-   (error-function argmap individual :train))
-  ([argmap individual subset]
+   (error-function argmap individual (:train train-and-test-data)))
+  ([argmap individual data]
    (let [program (genome/plushy->push (:plushy individual))
-         data (get train-and-test-data subset)
          inputs (:inputs data)
          correct-outputs (:outputs data)
          outputs (map (fn [input]
@@ -90,3 +89,28 @@
             :errors errors
             :total-error #?(:clj (apply +' errors)
                             :cljs (apply + errors))))))
+
+(defn target-function
+  [[input-string]]
+  (str "Check sum is "
+       (char (+ (mod (apply + (map int input-string)) 64)
+                (int \space)))))
+
+(def test-case-generator
+  (gen/vector
+   (gen/such-that #(<= (count %) 50) gen/string-ascii)
+   1))
+
+(defn make-initial-state
+  [input]
+  (assoc state/empty-state
+         :input {:in1 (first input)}
+         :output '("")))
+
+(def argmap {:instructions        instructions
+             :target-function     target-function
+             :error-function      error-function
+             :train-and-test-data train-and-test-data
+             :test-case-generator test-case-generator
+             :make-initial-state  make-initial-state
+             :result-stack        :output})
