@@ -115,7 +115,8 @@
 
 ;; Pushes the Nth item of the top element of the vector stack onto the
 ;; approrpiately-typed literal stack, where N is taken from the INTEGER stack.
-;; To insure the index is within bounds, N is taken mod the vector length
+;; To insure the index is within bounds, N is taken mod the vector length.
+;; If the vector has a length of 0, nothing happens
 (def _nth
   ^{:stacks #{:elem :integer}}
   (fn [stack state]
@@ -204,7 +205,8 @@
 
 ;; Replaces in the top vector the item at index N (taken from the INTEGER stack)
 ;; with the top item from the appropriately-typed literal stack. To insure the
-;; index is within bounds, N is taken mod the vector length
+;; index is within bounds, N is taken mod the vector length. If the vector 
+;; is empty this instruction is ignored.
 (def _set
   ^{:stacks #{:elem :integer}}
   (fn [stack state]
