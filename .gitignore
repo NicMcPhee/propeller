@@ -17,6 +17,8 @@ notes
 .clj-kondo/
 .idea/
 .calva/
+.lsp/
+.shadow-cljs/
 
 # Don't commit the data directory that we'll
 # use to hold the data from

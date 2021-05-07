@@ -30,7 +30,8 @@
          :tournament-size         5
          :umad-rate               0.1
          :variation               {:umad 0.85 :crossover 0.15}
-         :elitism                 false}
+         :elitism                 false
+         :sort-by-total-error     true}
         quick-check/arg-defaults
         ;number-io/argmap
         (require (symbol (str "propeller.problems." (first args))))

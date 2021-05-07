@@ -46,6 +46,22 @@
         (println "Test cases failed."))
       (#?(:clj shutdown-agents))))
 
+(defn most-zeros-least-error
+  [x y]
+  (let [x-zeros (:num-zero-errors x)
+        y-zeros (:num-zero-errors y)
+        x-error (:total-error x)
+        y-error (:total-error y)]
+    (if (= x-zeros y-zeros)
+      (- x-error y-error)
+      (- y-zeros x-zeros))))
+
+(defn select-sorting
+  [argmap]
+  (if (:sort-by-total-error argmap)
+    (partial sort-by :total-error)
+    (partial sort most-zeros-least-error)))
+
 (defn gp
   "Main GP loop."
   [{:keys [population-size max-generations error-function instructions
@@ -66,7 +82,7 @@
          ;; on the problem info in the argmap.
          qc-args (quick-check/make-gp-loop-args argmap)]
     (println qc-args)
-    (let [evaluated-pop (sort-by :total-error
+    (let [evaluated-pop ((select-sorting argmap)
                                  (#?(:clj  pmap
                                      :cljs map)
                                   (if use-quick-check
