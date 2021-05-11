@@ -43,8 +43,8 @@
     (list :in1)
     (list \space "Check sum is ")
     ;; ERCs
-    (list 64 random-int)
-    (list (fn [] (rand-nth (concat [\newline \tab] (map char (range 32 127)))))))))
+    (repeat 20 64)
+    (list random-int (fn [] (rand-nth (concat [\newline \tab] (map char (range 32 127)))))))))
 
 (def train-and-test-data
   (let [edn-edge-data (utils/load-edn "data/checksum/checksum-edge.edn")
